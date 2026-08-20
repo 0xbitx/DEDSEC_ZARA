@@ -201,6 +201,11 @@ value) visible for detection testing.
 The **skip list** lets you name variables whose *assigned literal values* are left
 untouched by string / integer / float obfuscation.
 
+## Disassembled Binary: Side-by-Side Comparison (Original vs. Obfuscated)
+| Screenshot |
+|-------|
+| ![screenshot](https://github.com/user-attachments/assets/c9490eca-d263-4e28-be52-a7c60f55e834) |
+
 ### How to use it
 
 ```text
