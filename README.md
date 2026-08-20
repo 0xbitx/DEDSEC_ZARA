@@ -327,8 +327,8 @@ name.
 | Python 3.8+ | Runtime | `apt install python3` |
 | `tabulate` | Table formatting | `pip install tabulate` |
 | Nuitka | Binary compilation | `pip install nuitka` |
-| UPX *(optional)* | Binary packing | `apt install upx` |
-| Clang *(optional)* | Light mode LTO | `apt install clang` |
+| UPX | Binary packing | `apt install upx-ucl` |
+| Clang | Light mode LTO | `apt install clang` |
 
 ---
 
