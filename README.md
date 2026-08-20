@@ -4,19 +4,20 @@
 </p>
 
 <h1 align="center">ZARA</h1>
-<p align="center"><code>Advanced Python Malware Obfuscator & Binary Packer — Evasion-Focused Red-Team & Malware-Development Framework</code></p>
+<p align="center"><code>Advanced Python Malware Obfuscator & Binary Packer for Evasion-Focused Red-Team and Malware-Development</code></p>
 
 ---
 
 ## DESCRIPTION
 
 ZARA is a multi-stage Python source-to-source obfuscator built for
-malware-development research. It turns readable Python — implants, loaders,
+malware-development research. It takes readable Python (implants, loaders,
 post-exploitation agents, keyloggers, droppers, C2 stagers, and persistence
-scripts — into an equivalent but heavily obfuscated form that is significantly
-harder to statically analyze, reverse engineer, or reuse. Optionally, the result
-is compiled into a standalone native ELF binary using Nuitka, then packed and
-anti-decompression-hardened with UPX.
+scripts) and turns it into an equivalent but heavily obfuscated form that is
+significantly harder to statically analyze, reverse engineer, or reuse. The
+obfuscated source is then always compiled into a standalone native ELF binary
+using Nuitka, and finally packed and anti-decompression-hardened with UPX. There
+is no plain Python output, the end result is a compiled executable.
 
 The project is built around a simple premise: **Python-based malware is only as
 stealthy as its source code.** Python payloads ship their logic and a large part
@@ -25,32 +26,32 @@ command strings, obvious imports, and self-describing builtin calls all act as
 high-signal breadcrumbs that give away a payload's purpose within seconds of
 inspection. This obfuscator exists to systematically strip those breadcrumbs
 away, studying and reproducing the exact evasion techniques that have made
-Python a persistent — and frequently underestimated — threat in the wild.
+Python a persistent and frequently underestimated threat in the wild.
 
 Every transformation in the pipeline is deliberately chosen to target a specific
 analysis surface that incident responders, AV/EDR engines, sandboxes, and manual
 reverse engineers rely on to triage suspicious code:
 
-- **Readable variable, function, and class names** — semantic names like
+- **Readable variable, function, and class names**. Semantic names like
   `download_and_execute`, `steal_cookies`, or `keylog_buffer` instantly expose
   intent. The renamer collapses them into indistinguishable Unicode glyphs (or
   invisible zero-width identifiers) so capability becomes opaque.
-- **Plaintext string literals** — C2 URLs, API keys, shell commands, file paths,
+- **Plaintext string literals**. C2 URLs, API keys, shell commands, file paths,
   registry entries, user-agents, and mutex names are the single highest-value
   signal for both automated `strings` extraction and manual analysis. The string
   encoder hides them behind runtime-decoded payloads.
-- **Direct `import` statements** — `import socket` implies networking, `import
-  subprocess` implies command execution, `import ctypes` implies native API
+- **Direct `import` statements**. `import socket` implies networking, `import
+  subprocess` implies command execution, and `import ctypes` implies native API
   access. The import rewrite removes this capability fingerprint by deferring
   resolution to obfuscated `__import__()` calls.
-- **Obvious builtin usage** — calls like `exec(...)`, `eval(...)`, `open(...)`,
+- **Obvious builtin usage**. Calls like `exec(...)`, `eval(...)`, `open(...)`,
   `subprocess.run(...)`, and `socket.connect(...)` are the most dangerous API
   surface a payload exposes. Builtin aliasing replaces these self-describing
   names with generated identifiers that no longer match static signatures.
-- **Recoverable numeric constants** — connection ports, sleep/jitter intervals,
+- **Recoverable numeric constants**. Connection ports, sleep/jitter intervals,
   buffer sizes, magic values, and XOR keys are trivial to extract and correlate.
   Integer and float obfuscation rewrites them as runtime-evaluated expressions.
-- **Excess structure** — comments, clean f-strings, and predictable formatting
+- **Excess structure**. Comments, clean f-strings, and predictable formatting
   all aid a human analyst tracing control flow. The framework strips comments,
   normalizes f-strings into concatenation trees, and injects opaque predicates
   and dead code to deliberately obscure logic.
@@ -58,11 +59,10 @@ reverse engineers rely on to triage suspicious code:
 Together these stages convert a self-documenting Python implant into a
 purpose-built, analysis-resistant artifact: a payload whose strings are invisible
 until execution, whose imports and dangerous calls no longer answer to grep, and
-whose numeric constants no longer sit in plain sight. The final, optional Nuitka
-+ UPX stage closes the loop by compiling that obfuscated source into a packed,
-standalone ELF — removing the Python source (and any recoverable `.pyc` bytes)
-from the equation entirely and further frustrating static unpacking and reverse
-engineering.
+whose numeric constants no longer sit in plain sight. Nuitka then compiles that
+obfuscated source into a standalone ELF binary, removing the Python source (and
+any recoverable `.pyc` bytes) from the equation entirely, and UPX packs the
+result to further frustrate static unpacking and reverse engineering.
 
 > This is a **research and defense-orientation** project. It models real evasion
 > techniques so analysts can recognize them, engineers can build detections, and
@@ -81,10 +81,10 @@ malware so that researchers can:
   opaque predicates, packing).
 - **Train reverse engineers** on unpacking and deobfuscating real-world payloads.
 
-It is a **source-to-source** transformation followed by an optional
-**source-to-native** compilation stage. The obfuscation is runtime-decoded, meaning
-the original logic is only reconstructed in memory when the payload executes — a
-deliberate trade-off intended to defeat static analysis.
+It is a **source-to-source** transformation followed by a **source-to-native**
+compilation stage. The obfuscation is runtime-decoded, meaning the original logic
+is only reconstructed in memory when the payload executes, a deliberate trade-off
+intended to defeat static analysis.
 
 ---
 
@@ -92,51 +92,51 @@ deliberate trade-off intended to defeat static analysis.
 
 ### Core Obfuscation
 
-- **Variable / function / class renaming** — identifiers rewritten to Unicode
+- **Variable / function / class renaming**: identifiers rewritten to Unicode
   glyphs from 12 scripts (Chinese, Japanese, Korean, Greek, Cyrillic, Arabic,
   Thai, Ethiopic, Runic, Braille). Invisible zero-width names are also available.
-- **String obfuscation** — 12 encoding modes, including zero-width invisible
+- **String obfuscation**: 12 encoding modes, including zero-width invisible
   characters and XOR, to hide C2 URLs, paths, commands, and secrets from `strings`
   and static scanners.
-- **Integer & float obfuscation** — numeric literals (ports, timeouts, IDs)
+- **Integer & float obfuscation**: numeric literals (ports, timeouts, IDs)
   rewritten as runtime decoder calls so they don't appear verbatim.
-- **Import obfuscation** — every `import` / `from ... import` converted into a
+- **Import obfuscation**: every `import` / `from ... import` converted into a
   dynamic `__import__()` call with an encoded module name, hiding capabilities.
-- **Builtin aliasing** — `exec`, `eval`, `open`, `subprocess`, `socket`, `input`,
+- **Builtin aliasing**: `exec`, `eval`, `open`, `subprocess`, `socket`, `input`,
   `range`, and other builtins replaced with obfuscated aliases.
-- **F-string conversion** — f-strings normalized into concatenation trees so
+- **F-string conversion**: f-strings normalized into concatenation trees so
   their interpolated contents can be obfuscated.
-- **List / dict / set obfuscation** — literal collections encoded element-wise.
+- **List / dict / set obfuscation**: literal collections encoded element-wise.
 
 ### Anti-Reverse Engineering
 
-- **Opaque predicates** — injected branches that evaluate to a fixed
+- **Opaque predicates**: injected branches that evaluate to a fixed
   `True`/`False`, hiding dead code and confusing control-flow recovery.
-- **Integer splitting** — simple integers expanded into arithmetic expressions.
-- **Indirect calls** — call sites wrapped to obscure the callee target.
-- **Anti-debug** — `sys.gettrace()` checks injected at entry to detect debuggers.
+- **Integer splitting**: simple integers expanded into arithmetic expressions.
+- **Indirect calls**: call sites wrapped to obscure the callee target.
+- **Anti-debug**: `sys.gettrace()` checks injected at entry to detect debuggers.
 
 ### Binary Compilation & Packing
 
-- **Nuitka integration** — compiles obfuscated Python into standalone ELF binaries.
-- **UPX compression** — auto-detected and applied, with optional signature
+- **Nuitka integration**: compiles obfuscated Python into standalone ELF binaries.
+- **UPX compression**: auto-detected and applied, with optional signature
   stripping to break naive `strings` inspection and reduce size.
-- **Anti-decompression** — corrupts the UPX trailer magic so `upx -d` fails.
-- **Disguised build directory** — builds occur inside an invisible-character path
+- **Anti-decompression**: corrupts the UPX trailer magic so `upx -d` fails.
+- **Disguised build directory**: builds occur inside an invisible-character path
   to prevent path leakage into the binary.
-- **Standalone vs light mode** — onefile standalone, or `--static-libpython` with
+- **Standalone vs light mode**: onefile standalone, or `--static-libpython` with
   Clang + LTO for much smaller payloads.
 
-### Operational Quality of Life
+### Usability & Workflow
 
-- **Interactive menu** — 5 preset modes (MAXIMUM → LIGHT) plus a custom path.
-- **Skip list** — keep select values (keys, URLs) verbatim for testing or
+- **Interactive menu**: 3 preset modes (MAXIMUM to LIGHT).
+- **Skip list**: keep select values (keys, URLs) verbatim for testing or
   specific study scenarios.
-- **Comment removal** — strips disassembly-aiding comments while preserving strings.
-- **Regex-aware processing** — protects regex patterns from being mangled.
-- **Spacing normalization** — cleans up `ast.unparse()` output.
-- **Loader animations** — progress indicator during compilation.
-- **Ctrl+C safe** — graceful exit at any prompt.
+- **Comment removal**: strips disassembly-aiding comments while preserving strings.
+- **Regex-aware processing**: protects regex patterns from being mangled.
+- **Spacing normalization**: cleans up `ast.unparse()` output.
+- **Loader animations**: progress indicator during compilation.
+- **Ctrl+C safe**: graceful exit at any prompt.
 
 ---
 
@@ -240,7 +240,7 @@ list, tuple, set, or dict, each literal element / value inside is preserved.
 ### Runtime-Decoded Strings
 
 The tool avoids storing plaintext strings by embedding a hidden decoder function
-named `ᅟ` (U+115F — Hangul Choseong Filler, invisible in most terminals). All
+named `ᅟ` (U+115F, Hangul Choseong Filler, invisible in most terminals). All
 strings, integers, and floats are rewritten as calls to this decoder, which
 reconstructs the original values only when the payload executes:
 
@@ -250,7 +250,7 @@ value = ᅟ("⟨encoded payload⟩")
 ```
 
 This defeats static `strings` extraction and naive pattern matching against URLs,
-commands, and keys — the values exist only in plaintext at runtime in memory.
+commands, and keys. The values exist only in plaintext at runtime in memory.
 
 ### Invisible Mode (Language 5)
 
