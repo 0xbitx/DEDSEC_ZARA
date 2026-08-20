@@ -146,7 +146,7 @@ intended to defeat static analysis.
 git clone https://github.com/0xbitx/DEDSEC_ZARA.git
 cd DEDSEC_ZARA
 sudo pip install tabulate nuitka
-sudo apt install upx
+sudo apt install upx-ucl
 sudo apt install clang
 sudo ./dedsec_zara
 ```
