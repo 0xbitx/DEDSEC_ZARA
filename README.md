@@ -116,6 +116,11 @@ intended to defeat static analysis.
 - **Indirect calls**: call sites wrapped to obscure the callee target.
 - **Anti-debug**: `sys.gettrace()` checks injected at entry to detect debuggers.
 
+| Anti-decompression |
+|-------|
+| ![screenshot](https://github.com/user-attachments/assets/56e6fdfa-1c8d-4651-8074-4228f47df2b4) |
+
+
 ### Binary Compilation & Packing
 
 - **Nuitka integration**: compiles obfuscated Python into standalone ELF binaries.
@@ -126,10 +131,22 @@ intended to defeat static analysis.
   to prevent path leakage into the binary.
 - **Standalone vs light mode**: onefile standalone, or `--static-libpython` with
   Clang + LTO for much smaller payloads.
+- **ELF header corruption**: after packing, the binary's ELF header fields (class,
+  entry point, program/section header offsets) are overwritten with invalid values
+  so static parsers, disassemblers, and unpackers struggle to load or analyze it.
+  The `e_version` field is then reset back to a valid value so the runtime can
+  still execute it.
+- **Binary header inspection**: the corrupted ELF header is dumped to the
+  terminal (via `readelf -h`) so you can verify the tampering at a glance.
 
-| Anti-decompression |
+| ELF header corruption |
 |-------|
-| ![screenshot](https://github.com/user-attachments/assets/56e6fdfa-1c8d-4651-8074-4228f47df2b4) |
+| ![screenshot](https://github.com/user-attachments/assets/f48df579-35e6-4ed0-82af-82904720fbd8) |
+
+| Virustotal result |
+|-------|
+| ![screenshot](https://github.com/user-attachments/assets/90109ba3-7ce0-4dcd-a559-48eab9700281) |
+
 
 ### Usability & Workflow
 
@@ -150,7 +167,7 @@ intended to defeat static analysis.
 git clone https://github.com/0xbitx/DEDSEC_ZARA.git
 cd DEDSEC_ZARA
 sudo pip install tabulate nuitka
-sudo apt install upx-ucl
+sudo apt install upx
 sudo apt install clang
 sudo ./dedsec_zara
 ```
@@ -303,6 +320,12 @@ name.
   `strings` and static unpacking.
 - **Path hiding**: builds in an invisible-character directory to avoid leaking
   build paths into the binary.
+- **ELF header corruption**: after the binary is packed, several ELF header fields
+  (`e_ident` class bytes, entry point, program/section header offsets) are
+  overwritten with invalid values. This breaks static parsers and disassemblers,
+  while `e_version` is then reset to a valid value so the binary still runs.
+- **Header dump**: the tampered ELF header is printed via `readelf -h` so you can
+  confirm the corruption.
 
 ---
 
@@ -331,8 +354,8 @@ name.
 | Python 3.8+ | Runtime | `apt install python3` |
 | `tabulate` | Table formatting | `pip install tabulate` |
 | Nuitka | Binary compilation | `pip install nuitka` |
-| UPX | Binary packing | `apt install upx-ucl` |
-| Clang | Light mode LTO | `apt install clang` |
+| UPX *(optional)* | Binary packing | `apt install upx` |
+| Clang *(optional)* | Light mode LTO | `apt install clang` |
 
 ---
 
