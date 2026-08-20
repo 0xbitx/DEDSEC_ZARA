@@ -127,6 +127,10 @@ intended to defeat static analysis.
 - **Standalone vs light mode**: onefile standalone, or `--static-libpython` with
   Clang + LTO for much smaller payloads.
 
+| Anti-decompression |
+|-------|
+| ![screenshot](https://github.com/user-attachments/assets/56e6fdfa-1c8d-4651-8074-4228f47df2b4) |
+
 ### Usability & Workflow
 
 - **Interactive menu**: 3 preset modes (MAXIMUM to LIGHT).
