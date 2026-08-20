@@ -1,30 +1,14 @@
 
 <p align="center">
-<img src="https://media4.giphy.com/media/v1.Y2lkPTc5MGI3NjExcnRjeXdib2JkZXphOHo4cmNhajdidzMyMWpkODN4Y3prbjNlM21xayZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/629GlaFwxaOdUajE9g/giphy.gif", width="400", height="400">
+<img src="https://media3.giphy.com/media/v1.Y2lkPTc5MGI3NjExemFreHN5MnRlYzIybHh0dXlpNWl4Z3VmMXd3ZGphMTYwcjUyNWNociZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/KAGxX1xU8PwGGfki8v/giphy.gif", width="400", height="400">
 </p>
 
 <h1 align="center">ZARA</h1>
-<p align="center"><code>Python Malware Obfuscator</code></p>
+<p align="center"><code>Advanced Python Malware Obfuscator & Binary Packer — Evasion-Focused Red-Team & Malware-Development Framework</code></p>
 
 ---
 
-## Table of Contents
-
-1. [Overview](#overview)
-2. [Threat Model & Purpose](#threat-model--purpose)
-3. [Features](#features)
-4. [Installation](#installation)
-5. [Encoding Languages](#encoding-languages)
-6. [Skip Value Obfuscation (Exclusion List)](#skip-value-obfuscation-exclusion-list)
-7. [Obfuscation Pipeline](#obfuscation-pipeline)
-8. [How It Works](#how-it-works)
-9. [Output Examples](#output-examples)
-10. [Requirements](#requirements)
-11. [License](#license)
-
----
-
-## Overview
+## DESCRIPTION
 
 ZARA is a multi-stage Python source-to-source obfuscator built for
 malware-development research. It turns readable Python — implants, loaders,
@@ -161,39 +145,28 @@ deliberate trade-off intended to defeat static analysis.
 ```bash
 git clone https://github.com/0xbitx/DEDSEC_ZARA.git
 cd DEDSEC_ZARA
-pip install tabulate nuitka
+sudo pip install tabulate nuitka
 sudo apt install upx
 sudo apt install clang
 sudo ./dedsec_zara
 ```
 
-> **Note:** Nuitka, UPX, and Clang are only needed for binary compilation.
-> Source-only obfuscation requires just `tabulate`.
-
----
-
-
-Five preset modes:
+Preset modes:
 
 | # | Mode | Description |
 |---|---------------|----------------------------------------------|
-| 1 | **MAXIMUM** | Standalone onefile + UPX + strip signatures |
-| 2 | **MEDIUM** | Light compile + UPX |
-| 3 | **LIGHT** | Light compile, no UPX |
-| 4 | **OBFUSCATE** | Source-only obfuscation, no compilation |
-| 5 | **CUSTOM** | Full control over every option |
+| 1 | **MAXIMUM** | Standalone onefile + Compress |
+| 2 | **MEDIUM** | Light compile + Compress |
+| 3 | **LIGHT** | Light compile, not Compress |
 
 #### Step-by-step flow
 
-1. Select a mode (`1`–`5`), or `0` to exit.
+1. Select a mode (`1`–`3`), or `0` to exit.
 2. Choose an **encoding language** (`1`–`12`).
 3. Enter the **input file path** (must end in `.py`).
-4. *(CUSTOM mode only)* choose name length, and whether to compile, build
-   standalone, use UPX, and keep/strip UPX signatures.
-5. *(Optional)* enter a **skip list** of variable names whose values should not
+4. *(Optional)* enter a **skip list** of variable names whose values should not
    be obfuscated (comma-separated, e.g. `c2_url, xor_key, mutex`).
-6. The tool processes the file and writes `output.py` (and, if requested, a
-   compiled executable).
+5. The tool processes the file and writes `output`.
 
 ---
 
@@ -262,36 +235,6 @@ list, tuple, set, or dict, each literal element / value inside is preserved.
 
 ---
 
-## Obfuscation Pipeline
-
-```
-Source File (implant / loader / stager)
-    ↓
-Comment Removal
-    ↓
-F-string → Concatenation
-    ↓
-Builtin Aliasing
-    ↓
-Variable / Function / Class Renaming
-    ↓
-Anti-Reverse Transformations
-    ↓
-String / Integer / Float Encoding + Decoder Boilerplate
-    ↓
-Import → __import__() Conversion
-    ↓
-Invisible Finalization (language 5 only)
-    ↓
-Spacing Normalization
-    ↓
-[Optional] Nuitka + UPX Binary Compilation
-    ↓
-Output Artifact (obfuscated .py or packed ELF)
-```
-
----
-
 ## How It Works
 
 ### Runtime-Decoded Strings
@@ -349,10 +292,8 @@ name.
 - **Light mode**: `--static-libpython --clang --lto` → smaller payload.
 - **UPX**: auto-detected and applied; optional signature stripping to hinder
   `strings` and static unpacking.
-- **Anti-decompression**: corrupts the UPX trailer magic so `upx -d` fails.
 - **Path hiding**: builds in an invisible-character directory to avoid leaking
   build paths into the binary.
-
 
 ---
 
@@ -372,22 +313,6 @@ name.
 # The "empty" strings contain invisible zero-width characters.
 ```
 
-### Terminal Output
-
-```
-❱ Processing: implant.py
-
-❱ F-strings converted.
-❱ Builtins aliased: 7 (input, int, len, exec, open, range...)
-❱ Names obfuscated: 84 (0 classes, 0 methods)
-❱ Anti-reverse: 3 predicates, 2 int splits
-❱ KEY: 2891
-❱ Strings obfuscated: 222 (6 ints, 0 floats, 10 complex)
-❱ Encoding: Chinese
-❱ Imports converted: 10
-❱ PROCESSING: NUITKA :COMPILING CODE: [COMPLETED]
-```
-
 ---
 
 ## Requirements
@@ -402,9 +327,17 @@ name.
 
 ---
 
+## Tested On
+
+- Kali Linux
+- Parrot OS
+- Ubuntu
+
 ---
 
-## License
+## Legal Disclaimer
 
-MIT — PROJECT QUANTUM
-
+This tool is intended for **educational and security research purposes only**.
+Unauthorized access to computer systems is illegal. The author is not
+responsible for any misuse of this tool. Only use on systems you own or have
+explicit permission to test.
